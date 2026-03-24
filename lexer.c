@@ -46,6 +46,7 @@ typedef enum {
     TOK_IF,         /* if */
     TOK_ELSE,       /* else */
     TOK_WHILE,      /* while */
+    TOK_FOR,        /* for  ← MELHORIA: nova palavra reservada */
     TOK_INT,        /* int (tipo de dado) */
     TOK_FLOAT,      /* float (tipo de dado) */
     TOK_RETURN,     /* return */
@@ -72,6 +73,8 @@ typedef enum {
     TOK_RPAREN,     /* ) */
     TOK_LBRACE,     /* { */
     TOK_RBRACE,     /* } */
+    TOK_LBRACKET,   /* [ */
+    TOK_RBRACKET,   /* ] */
     
     /* Especiais */
     TOK_EOF,        /* Fim de arquivo */
@@ -132,6 +135,7 @@ static Reservada reservadas[] = {
     {"if",     TOK_IF    },
     {"else",   TOK_ELSE  },
     {"while",  TOK_WHILE },
+    {"for",    TOK_FOR   },  /* MELHORIA: nova palavra reservada */
     {"int",    TOK_INT   },
     {"float",  TOK_FLOAT },
     {"return", TOK_RETURN},
@@ -144,10 +148,11 @@ static Reservada reservadas[] = {
 */
 static const char *nomes_tokens[] = {
     "ID", "NUM_INT", "NUM_FLOAT", "STRING",
-    "if", "else", "while", "int", "float", "return",
+    "if", "else", "while", "for", "int", "float", "return",
     "PLUS", "MINUS", "STAR", "SLASH",
     "EQ", "ASSIGN", "NEQ", "LT", "LE", "GT", "GE",
     "SEMICOL", "COMMA", "LPAREN", "RPAREN", "LBRACE", "RBRACE",
+    "LBRACKET", "RBRACKET",
     "EOF", "ERROR"
 };
 
@@ -624,6 +629,21 @@ Token proximo_token(void) {
         tok.coluna = coluna_token;
         return tok;
     }
+    /* MELHORIA: delimitadores de colchete [ e ] */
+    if (c == '[') {
+        buf[0] = c; buf[1] = '\0';
+        Token tok = criar_token(TOK_LBRACKET, buf);
+        tok.linha = linha_token;
+        tok.coluna = coluna_token;
+        return tok;
+    }
+    if (c == ']') {
+        buf[0] = c; buf[1] = '\0';
+        Token tok = criar_token(TOK_RBRACKET, buf);
+        tok.linha = linha_token;
+        tok.coluna = coluna_token;
+        return tok;
+    }
     
     /* ─────────────────────────────────────────────────────────────────
        CASO 6: CARACTERE INVÁLIDO
@@ -698,6 +718,10 @@ char* ler_arquivo(const char *nome_arquivo) {
    2. Com argumento: lê arquivo especificado
 */
 int main(int argc, char *argv[]) {
+    /* ── Assinatura do autor (exigência do exercício 10.1) ──────────── */
+    printf("Autor(a): Luiz Henrique Souza Dias | Turma Compiladores | Repositório: lexer-compiladores\n");
+    printf("───────────────────────────────────────────────────────────\n\n");
+
     const char *codigo_exemplo =
         "/* Exemplo de código em C */\n"
         "int fatorial(int n) {\n"
